@@ -116,7 +116,7 @@ pipeline {
     stages {
         stage('Check_User_in_Org') {
             agent {
-                label "master"
+                label "llvm-test-suite-ci"
             }
             steps {
                 script {
