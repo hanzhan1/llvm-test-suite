@@ -87,7 +87,7 @@ pipeline {
         string(name: 'Commit_id', defaultValue: 'None', description: '',)
         string(name: 'PR_number', defaultValue: 'None', description: '',)
         string(name: 'Repository', defaultValue: 'hanzhan1/llvm-test-suite', description: '',)
-        string(name: 'User', defaultValue: 'hanzhan1', description: '',)
+        string(name: 'User', defaultValue: 'None', description: '',)
     }
     triggers {
         GenericTrigger(
@@ -109,7 +109,7 @@ pipeline {
                 silentResponse: false,
 
                 regexpFilterText: '$action',
-                //regexpFilterExpression: '(opened|reopened|synchronize)'
+                regexpFilterExpression: '(opened|reopened|synchronize)'
         )
     }
 
