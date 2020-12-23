@@ -1,6 +1,8 @@
 #!/bin/sh
 
 RELEASE_PKG_NAME="dpcpp-compiler.tar.gz"
+UNZIP_PATH=$1
+
 # Command line parameters:
 export http_proxy=http://proxy-dmz.intel.com:911
 export https_proxy=http://proxy-dmz.intel.com:912
@@ -22,7 +24,7 @@ if [[ $lastest_tag =~ $REGEX ]]; then
     | wget -qi -
 
     if [ -f ${RELEASE_PKG_NAME} ]; then
-        tar -xzf ${RELEASE_PKG_NAME} -C ${WORKSPACE}
+        tar -xzf ${RELEASE_PKG_NAME} -C ${UNZIP_PATH}
     fi
 else
     echo "cannot find latest release tag"
