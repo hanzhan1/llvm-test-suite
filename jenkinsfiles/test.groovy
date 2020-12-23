@@ -133,7 +133,7 @@ pipeline {
                                   | grep browser_download_url \
                                   | cut -d '"' -f 4 \
                                   | wget -qi -
-                                tarfile="$(find . -name "dpcpp-compiler.tar.gz")"
+                                tarfile=`find . -name "dpcpp-compiler.tar.gz"`
                                 tar -xzf $tarfile
                             """
                             
