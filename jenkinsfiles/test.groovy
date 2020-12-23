@@ -114,34 +114,97 @@ pipeline {
     }
 
     stages {
-        stage('download_latest_release_code') {
+        stage('LLVM_TEST_SUITE_CI_CHECK'){
             agent {
                 label "llvm-test-suite-ci"
             }
-            steps {
-                script {
-                    try {
-                        retry(2) {
-                            echo 'test ok'
-                            sh "pwd"
-                            //githubStatus.setPending(this, "Jenkins/pre_Check")
-                            sh script: "chmod 775 ./jenkinsfiles/download_latest_release.sh"
-                            download_result = sh(script: "./jenkinsfiles/download_latest_release.sh `pwd`", returnStatus: true)
-                            if (download_result != 0){
-                                echo 'Error occurs when download latest release code'
-                                sh "exit 1"
+            stages{
+                stage("Clobber") {
+                    steps {
+                        echo '+++ Clobber start+++'
+                        println pwd()
+                        script {
+                            if (fileExists('./llvm-test-suite')) {
+                                sh "rm -rf llvm-test-suite*"
+                            }
+                            if (fileExists('./llvm.obj')) {
+                                sh "rm -rf llvm.obj*"
                             }
                         }
+                        echo '--- Clobber finish ---'
                     }
-                    catch (e) {
-                        fail_stage = fail_stage + "    " + "download_latest_release_code"
-                        user_in_github_group = false
-                        echo "Exception occurred when check User:${env.User} in group. Will skip build this time"
-                        sh script: "exit -1", label: "Set Failure"
+                }
+                stage("LLVM-test-suite-git-monorepo") {
+                    steps {
+                        echo '+++ icsconfig-git-monorepo start+++'
+                        println pwd()
+                        script {
+                            try {
+                                retry(2) {
+                                    checkout([
+                                        $class: 'GitSCM',
+                                        branches: [
+                                            [name: '${Commit_id}']
+                                        ],
+                                        doGenerateSubmoduleConfigurations: false,
+                                        extensions: [
+                                            [
+                                                $class: 'RelativeTargetDirectory',
+                                                relativeTargetDir: 'llvm-test-suite'
+                                            ],
+                                            [
+                                                $class: 'LocalBranch',
+                                                localBranch: '${Commit_id}'
+                                            ]
+                                        ],
+                                        submoduleCfg: [],
+                                        userRemoteConfigs: [
+                                            [
+                                                credentialsId: '4e6b329d-8ca7-49a0-88ec-5453d8b1c57a',
+                                                url: 'https://github.com/hanzhan1/llvm-test-suite'
+                                            ]
+                                        ]
+                                    ])
+                                }
+                            }
+                            catch(e) {
+                                build_ok = false
+                                fail_stage = fail_stage + "    " + "icsconfig-git-monorepo"
+                                sh "exit -1"
+                            }
+                        }
+                        echo '--- LLVM-test-suite-git-monorepo finish ---'
+                    }
+                }
+                
+                stage('download_latest_release_code') {
+                    steps {
+                        script {
+                            try {
+                                retry(2) {
+                                    echo 'test ok'
+                                    sh "pwd"
+                                    //githubStatus.setPending(this, "Jenkins/pre_Check")
+                                    sh script: "chmod 775 ./jenkinsfiles/download_latest_release.sh"
+                                    download_result = sh(script: "./jenkinsfiles/download_latest_release.sh `pwd`", returnStatus: true)
+                                    if (download_result != 0){
+                                        echo 'Error occurs when download latest release code'
+                                        sh "exit 1"
+                                    }
+                                }
+                            }
+                            catch (e) {
+                                fail_stage = fail_stage + "    " + "download_latest_release_code"
+                                user_in_github_group = false
+                                echo "Exception occurred when check User:${env.User} in group. Will skip build this time"
+                                sh script: "exit -1", label: "Set Failure"
+                            }
+                        }
                     }
                 }
             }
         }
+        
     }
 
     post {
