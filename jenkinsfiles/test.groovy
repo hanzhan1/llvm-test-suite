@@ -124,18 +124,12 @@ pipeline {
                         retry(2) {
                             echo 'test ok'
                             //githubStatus.setPending(this, "Jenkins/pre_Check")
-                            sh script: """
-                                export http_proxy=http://proxy-dmz.intel.com:911
-                                export https_proxy=http://proxy-dmz.intel.com:912
-                                proxychains curl \
-                                  -H "Accept: application/vnd.github.v3+json" \
-                                  https://api.github.com/repos/intel/llvm/releases/tags/sycl-nightly/20201222 \
-                                  | grep browser_download_url \
-                                  | cut -d '"' -f 4 \
-                                  | wget -qi -
-                                tar -xzf dpcpp-compiler.tar.gz
-                            """
-                            
+                            sh script: "chmod 775 ./jenkinsfiles/download_latest_release.sh"
+                            download_result = sh(script: "./jenkinsfiles/download_latest_release.sh", returnStatus: true)
+                            if (check_commit_result != 0){
+                                echo 'Error occurs when download latest release code'
+                                sh "exit 1"
+                            }
                         }
                     }
                     catch (e) {
