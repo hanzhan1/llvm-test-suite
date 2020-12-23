@@ -125,9 +125,9 @@ pipeline {
                             echo 'test ok'
                             //githubStatus.setPending(this, "Jenkins/pre_Check")
                             sh script: """
-                                export http_proxy=http://proxy-chain.intel.com:911
-                                export https_proxy=http://proxy-chain.intel.com:912
-                                curl \
+                                export http_proxy=http://proxy-dmz.intel.com:911
+                                export https_proxy=http://proxy-dmz.intel.com:912
+                                proxychains curl \
                                   -H "Accept: application/vnd.github.v3+json" \
                                   https://api.github.com/repos/intel/llvm/releases/tags/sycl-nightly/20201222 \
                                   | grep browser_download_url \
