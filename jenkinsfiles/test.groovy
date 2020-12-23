@@ -114,7 +114,7 @@ pipeline {
     }
 
     stages {
-        stage('Check_User_in_Org') {
+        stage('download_latest_release_code') {
             agent {
                 label "llvm-test-suite-ci"
             }
@@ -123,11 +123,24 @@ pipeline {
                     try {
                         retry(2) {
                             echo 'test ok'
-                            githubStatus.setPending(this, "Jenkins/pre_Check")
+                            //githubStatus.setPending(this, "Jenkins/pre_Check")
+                            sh script: """
+                                export http_proxy=http://proxy-chain.intel.com:911
+                                export https_proxy=http://proxy-chain.intel.com:912
+                                curl \
+                                  -H "Accept: application/vnd.github.v3+json" \
+                                  https://api.github.com/repos/intel/llvm/releases/tags/sycl-nightly/20201222 \
+                                  | grep browser_download_url \
+                                  | cut -d '"' -f 4 \
+                                  | wget -qi -
+                                tarfile="$(find . -name "dpcpp-compiler.tar.gz")"
+                                tar -xzf $tarfile
+                            """
+                            
                         }
                     }
                     catch (e) {
-                        fail_stage = fail_stage + "    " + "Check_User_in_Org"
+                        fail_stage = fail_stage + "    " + "download_latest_release_code"
                         user_in_github_group = false
                         echo "Exception occurred when check User:${env.User} in group. Will skip build this time"
                         sh script: "exit -1", label: "Set Failure"
@@ -142,10 +155,10 @@ pipeline {
             script {
                 if (build_ok) {
                         currentBuild.result = "SUCCESS"
-                        githubStatus.setSuccess(this, "Jenkins/pre_Check")
+                        //githubStatus.setSuccess(this, "Jenkins/pre_Check")
                     } else {
                         currentBuild.result = "FAILURE"
-                        githubStatus.setFailed(this, "Jenkins/pre_Check")
+                        //githubStatus.setFailed(this, "Jenkins/pre_Check")
                     }
             }
         }
