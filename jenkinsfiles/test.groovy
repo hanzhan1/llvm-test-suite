@@ -127,7 +127,7 @@ pipeline {
                             //githubStatus.setPending(this, "Jenkins/pre_Check")
                             sh script: "chmod 775 ./jenkinsfiles/download_latest_release.sh"
                             download_result = sh(script: "./jenkinsfiles/download_latest_release.sh `pwd`", returnStatus: true)
-                            if (check_commit_result != 0){
+                            if (download_result != 0){
                                 echo 'Error occurs when download latest release code'
                                 sh "exit 1"
                             }

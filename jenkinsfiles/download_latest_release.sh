@@ -24,7 +24,7 @@ if [[ $lastest_tag =~ $REGEX ]]; then
     | wget -qi -
 
     if [ -f ${RELEASE_PKG_NAME} ]; then
-        tar -xzf ${RELEASE_PKG_NAME}
+        tar -xzf ${RELEASE_PKG_NAME} -C ${UNZIP_PATH}
     fi
 else
     echo "cannot find latest release tag"
