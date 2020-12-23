@@ -123,7 +123,7 @@ pipeline {
                     try {
                         retry(2) {
                             echo 'test ok'
-                            githubStatus.setPending(this, "Jenkins/pre_Check")
+                            //githubStatus.setPending(this, "Jenkins/pre_Check")
                         }
                     }
                     catch (e) {
