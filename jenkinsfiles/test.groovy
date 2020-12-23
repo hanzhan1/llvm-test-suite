@@ -109,7 +109,7 @@ pipeline {
                 silentResponse: false,
 
                 regexpFilterText: '$action',
-                regexpFilterExpression: '(opened|reopened|synchronize)'
+                //regexpFilterExpression: '(opened|reopened|synchronize)'
         )
     }
 
